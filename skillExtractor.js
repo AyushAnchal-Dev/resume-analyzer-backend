@@ -1,4 +1,3 @@
-import nlp from 'compromise';
 import fs from 'fs/promises';
 
 let jobRoles = [];
@@ -10,19 +9,22 @@ try {
   console.error("❌ Failed to load jobRoles.json:", err);
 }
 
-// Function to extract skills from resume text
+// Function to extract skills using word-matching logic
 export default function extractSkills(resumeText) {
-  const doc = nlp(resumeText);
-  const nouns = doc.nouns().out('array');
+  const resumeWords = resumeText.toLowerCase().split(/[\s,.;:\n()]+/);
 
   const matched = [];
 
   for (const job of jobRoles) {
-    const match = job.skills.filter(skill =>
-      nouns.map(n => n.toLowerCase()).includes(skill.toLowerCase())
+    const matchedSkills = job.skills.filter(skill =>
+      resumeWords.includes(skill.toLowerCase())
     );
-    if (match.length > 0) {
-      matched.push({ role: job.role, matchedSkills: match });
+
+    if (matchedSkills.length > 0) {
+      matched.push({
+        role: job.role,
+        matchedSkills
+      });
     }
   }
 
